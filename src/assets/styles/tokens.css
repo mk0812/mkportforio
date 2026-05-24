@@ -64,6 +64,7 @@
     0 0 32px rgba(139, 92, 246, 0.35),
     0 0 64px rgba(79, 123, 255, 0.18);
   --shadow-glow-pink: 0 0 28px rgba(236, 72, 153, 0.45);
+  --neon-glow: rgba(139, 92, 246, 0.55);
 
   /* Typography */
   --font-display: 'Fraunces', 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
@@ -105,6 +106,7 @@
   --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
   --dur-fast: 180ms;
   --dur-base: 280ms;
+  --dur-md: 700ms;
   --dur-slow: 520ms;
 
   /* Layout */

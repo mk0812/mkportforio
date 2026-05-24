@@ -28,6 +28,7 @@ export interface SiteConfig {
 export interface Skill {
   name: string
   level: SkillLevel
+  category?: string
 }
 
 export interface Profile {

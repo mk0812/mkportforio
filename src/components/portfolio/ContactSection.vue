@@ -1,6 +1,6 @@
 <template>
   <section id="contact" class="contact" aria-labelledby="contact-heading">
-    <SectionEyebrow>05 / Contact</SectionEyebrow>
+    <SectionEyebrow text="05 / Contact" />
     <h2 id="contact-heading" ref="headingEl" class="contact__heading">
       <span class="contact__heading-line">Let's build</span>
       <span class="contact__heading-line contact__heading-line--accent">something together.</span>
@@ -9,22 +9,17 @@
       お仕事のご相談・ご質問は、メールまたは SNS からお気軽にどうぞ。
     </p>
     <div class="contact__cta">
-      <BaseButton :href="`mailto:${site.email}`" variant="primary" magnetic>
+      <BaseButton :href="`mailto:${site.email}`" variant="primary" magnetic class="contact__mail-btn">
         <IconMail />
         {{ site.email }}
       </BaseButton>
     </div>
     <ul class="contact__social">
       <li v-for="link in site.social" :key="link.href">
-        <a
-          :href="link.href"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="contact__social-link"
-        >
+        <MagneticAnchor :href="link.href" class="contact__social-link">
           <SocialIcon :name="link.icon" />
           <span>{{ link.label }}</span>
-        </a>
+        </MagneticAnchor>
       </li>
     </ul>
   </section>
@@ -36,6 +31,7 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useSiteConfig } from '@/composables/useSiteConfig'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import MagneticAnchor from '@/components/ui/MagneticAnchor.vue'
 import SectionEyebrow from './SectionEyebrow.vue'
 import SocialIcon from '@/components/ui/icons/SocialIcon.vue'
 import IconMail from '@/components/ui/icons/IconMail.vue'
@@ -62,7 +58,27 @@ onMounted(() => {
 
 <style scoped>
 .contact {
+  position: relative;
   margin-bottom: var(--space-3xl);
+  padding: var(--space-xl);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-surface);
+}
+
+.contact::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, var(--color-text) 1px, transparent 1px);
+  background-size: var(--space-xl) var(--space-xl);
+  opacity: 0.04;
+  pointer-events: none;
+}
+
+.contact > * {
+  position: relative;
+  z-index: 1;
 }
 
 .contact__heading {
@@ -100,6 +116,36 @@ onMounted(() => {
   margin-bottom: var(--space-xl);
 }
 
+.contact__mail-btn :deep(.btn__inner) {
+  position: relative;
+}
+
+.contact__mail-btn :deep(.btn__inner)::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform var(--dur-base) var(--ease-out-expo);
+}
+
+.contact__mail-btn:hover :deep(.btn__inner)::after {
+  transform: scaleX(1);
+  transform-origin: left center;
+}
+
+.contact__mail-btn :deep(.btn__inner svg) {
+  transition: transform var(--dur-base) var(--ease-out-expo);
+}
+
+.contact__mail-btn:hover :deep(.btn__inner svg) {
+  transform: translateX(3px);
+}
+
 .contact__social {
   display: flex;
   flex-wrap: wrap;
@@ -116,6 +162,7 @@ onMounted(() => {
   color: var(--color-text-muted);
   font-size: var(--fs-sm);
   background: var(--glass-bg);
+  text-decoration: none;
   transition:
     color var(--dur-base) var(--ease-out-expo),
     border-color var(--dur-base) var(--ease-out-expo),
@@ -126,5 +173,6 @@ onMounted(() => {
   color: var(--color-text);
   border-color: var(--neon-violet);
   background: rgba(139, 92, 246, 0.08);
+  text-decoration: none;
 }
 </style>

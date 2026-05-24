@@ -2,7 +2,7 @@
   <section :id="id" class="section" :aria-labelledby="titleId">
     <header v-if="title || $slots.header || eyebrow" class="section__header">
       <slot name="header">
-        <SectionEyebrow v-if="eyebrow">{{ eyebrow }}</SectionEyebrow>
+        <SectionEyebrow v-if="eyebrow" :text="eyebrow" />
         <h2 :id="titleId" class="section__title">{{ title }}</h2>
         <p v-if="subtitle" class="section__subtitle">{{ subtitle }}</p>
       </slot>
@@ -41,6 +41,33 @@ const titleId = computed(() =>
 .section {
   margin-bottom: var(--space-3xl);
   position: relative;
+  padding-block: var(--space-md);
+}
+
+.section::before,
+.section::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  pointer-events: none;
+  opacity: 0.35;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--color-border) 0,
+    var(--color-border) 2px,
+    transparent 2px,
+    transparent var(--space-sm)
+  );
+}
+
+.section::before {
+  top: 0;
+}
+
+.section::after {
+  bottom: 0;
 }
 
 .section__header {
