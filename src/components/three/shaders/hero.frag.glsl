@@ -21,11 +21,11 @@ void main() {
   vec3 col = mix(uColorA, uColorB, smoothstep(0.0, 0.6, tMix));
   col = mix(col, uColorC, smoothstep(0.5, 1.0, tMix));
 
-  float fres = pow(1.0 - clamp(dot(normalize(vNormal), normalize(vViewDir)), 0.0, 1.0), 2.2);
+  float fres = pow(1.0 - clamp(dot(normalize(vNormal), normalize(vViewDir)), 0.0, 1.0), 2.6);
   vec3 fresCol = mix(uColorA, uColorB, smoothstep(0.0, 0.55, fres));
   fresCol = mix(fresCol, uColorC, smoothstep(0.45, 1.0, fres));
-  col = mix(col, fresCol, fres * 0.72);
-  col += fres * 0.18;
+  col = mix(col, fresCol, fres * 0.6);
+  col += fres * 0.06;
 
   float causticA = abs(sin(vPos.x * 14.0 + vPos.y * 11.0 + t * 1.4));
   float causticB = abs(sin(vPos.z * 12.0 - vPos.x * 9.0 + t * 0.9));
