@@ -7,6 +7,8 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { prefersReducedMotion } from '@/composables/usePrefersReducedMotion'
+import { postShader } from './post/post.shaders'
+import { curlNoise } from './utils/particleNoise'
 
 const rootEl = ref<HTMLDivElement | null>(null)
 const canvasEl = ref<HTMLCanvasElement | null>(null)
@@ -25,6 +27,16 @@ onBeforeUnmount(() => {
   disposeFn?.()
   disposeFn = null
 })
+
+interface ComposerPass {
+  dispose?: () => void
+}
+
+interface ComposerLike {
+  render: () => void
+  setSize: (w: number, h: number) => void
+  passes: ComposerPass[]
+}
 
 async function initScene(root: HTMLDivElement, canvas: HTMLCanvasElement): Promise<() => void> {
   const THREE = await import('three')
@@ -45,15 +57,23 @@ async function initScene(root: HTMLDivElement, canvas: HTMLCanvasElement): Promi
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100)
   camera.position.z = 4.2
 
-  // ── Core mesh: high-detail icosahedron with custom shader ──
-  const geometry = new THREE.IcosahedronGeometry(1.0, 48)
+  const sharedMouse = new THREE.Vector2(0, 0)
+  const sharedColorA = new THREE.Color('#22d3ee')
+  const sharedColorB = new THREE.Color('#8b5cf6')
+  const sharedColorC = new THREE.Color('#ec4899')
+
   const uniforms = {
     uTime: { value: 0 },
-    uMouse: { value: new THREE.Vector2(0, 0) },
-    uColorA: { value: new THREE.Color('#22d3ee') },
-    uColorB: { value: new THREE.Color('#8b5cf6') },
-    uColorC: { value: new THREE.Color('#ec4899') },
+    uTimeOffset: { value: 0 },
+    uPhaseShift: { value: 0 },
+    uMouse: { value: sharedMouse },
+    uColorA: { value: sharedColorA },
+    uColorB: { value: sharedColorB },
+    uColorC: { value: sharedColorC },
+    uOpacity: { value: 1 },
   }
+
+  const geometry = new THREE.IcosahedronGeometry(1.0, 48)
   const material = new THREE.ShaderMaterial({
     vertexShader,
     fragmentShader,
@@ -61,24 +81,53 @@ async function initScene(root: HTMLDivElement, canvas: HTMLCanvasElement): Promi
     transparent: false,
   })
   const mesh = new THREE.Mesh(geometry, material)
-  // Anchor orb to the right side so it complements left-aligned hero copy
   mesh.position.set(1.6, -0.4, 0)
   scene.add(mesh)
 
-  // ── Particle field ──
+  const innerGeometry = new THREE.IcosahedronGeometry(0.58, 32)
+  const innerUniforms = {
+    uTime: { value: 0 },
+    uTimeOffset: { value: 1.85 },
+    uPhaseShift: { value: 2.4 },
+    uMouse: { value: sharedMouse },
+    uColorA: { value: sharedColorA },
+    uColorB: { value: sharedColorB },
+    uColorC: { value: sharedColorC },
+    uOpacity: { value: 0.38 },
+  }
+  const innerMaterial = new THREE.ShaderMaterial({
+    vertexShader,
+    fragmentShader,
+    uniforms: innerUniforms,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.NormalBlending,
+  })
+  const innerMesh = new THREE.Mesh(innerGeometry, innerMaterial)
+  innerMesh.position.copy(mesh.position)
+  scene.add(innerMesh)
+
   const isLargeViewport = window.innerWidth * window.innerHeight > 1_500_000
   const particleCount = isLargeViewport ? 350 : 600
+  const basePositions = new Float32Array(particleCount * 3)
   const positions = new Float32Array(particleCount * 3)
   for (let i = 0; i < particleCount; i++) {
     const r = 3 + Math.random() * 4
     const theta = Math.random() * Math.PI * 2
     const phi = Math.acos(2 * Math.random() - 1)
-    positions[i * 3] = r * Math.sin(phi) * Math.cos(theta)
-    positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta)
-    positions[i * 3 + 2] = r * Math.cos(phi) * 0.5 - 2
+    const x = r * Math.sin(phi) * Math.cos(theta)
+    const y = r * Math.sin(phi) * Math.sin(theta)
+    const z = r * Math.cos(phi) * 0.5 - 2
+    basePositions[i * 3] = x
+    basePositions[i * 3 + 1] = y
+    basePositions[i * 3 + 2] = z
+    positions[i * 3] = x
+    positions[i * 3 + 1] = y
+    positions[i * 3 + 2] = z
   }
   const particleGeo = new THREE.BufferGeometry()
-  particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+  const positionAttr = new THREE.BufferAttribute(positions, 3)
+  particleGeo.setAttribute('position', positionAttr)
   const particleMat = new THREE.PointsMaterial({
     size: 0.018,
     color: new THREE.Color('#9aa3ff'),
@@ -90,29 +139,27 @@ async function initScene(root: HTMLDivElement, canvas: HTMLCanvasElement): Promi
   const particles = new THREE.Points(particleGeo, particleMat)
   scene.add(particles)
 
-  // ── Postprocessing (bloom) — skip on reduced motion or massive viewport ──
-  type ComposerLike = {
-    render: () => void
-    setSize: (w: number, h: number) => void
-    passes: { dispose?: () => void }[]
-  }
   let composer: ComposerLike | null = null
+  const postUniforms = postShader.uniforms
   if (!reduced && !isLargeViewport) {
     try {
       const { EffectComposer } = await import('three/examples/jsm/postprocessing/EffectComposer.js')
       const { RenderPass } = await import('three/examples/jsm/postprocessing/RenderPass.js')
       const { UnrealBloomPass } = await import('three/examples/jsm/postprocessing/UnrealBloomPass.js')
+      const { ShaderPass } = await import('three/examples/jsm/postprocessing/ShaderPass.js')
       const c = new EffectComposer(renderer)
       c.addPass(new RenderPass(scene, camera))
       const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.55, 0.35, 0.45)
       c.addPass(bloom)
+      const postPass = new ShaderPass(postShader)
+      postPass.renderToScreen = true
+      c.addPass(postPass)
       composer = c as unknown as ComposerLike
     } catch {
       composer = null
     }
   }
 
-  // ── Sizing ──
   function resize(): void {
     const w = root.clientWidth
     const h = root.clientHeight
@@ -121,16 +168,16 @@ async function initScene(root: HTMLDivElement, canvas: HTMLCanvasElement): Promi
     composer?.setSize(w, h)
     camera.aspect = w / h
     camera.updateProjectionMatrix()
-    // Slide orb left on narrow viewports so it doesn't escape the canvas
     const aspect = w / h
-    mesh.position.x = aspect < 1 ? 0 : Math.min(1.6, 0.8 + aspect * 0.45)
-    mesh.position.y = aspect < 1 ? -0.4 : -0.35
+    const orbX = aspect < 1 ? 0 : Math.min(1.6, 0.8 + aspect * 0.45)
+    const orbY = aspect < 1 ? -0.4 : -0.35
+    mesh.position.set(orbX, orbY, 0)
+    innerMesh.position.set(orbX, orbY, 0)
   }
   resize()
   const resizeObs = new ResizeObserver(resize)
   resizeObs.observe(root)
 
-  // ── Visibility / offscreen pausing ──
   let inView = true
   const visObs = new IntersectionObserver(
     (entries) => {
@@ -142,7 +189,6 @@ async function initScene(root: HTMLDivElement, canvas: HTMLCanvasElement): Promi
   )
   visObs.observe(root)
 
-  // ── Mouse tracking ──
   const mouse = { x: 0, y: 0, tx: 0, ty: 0 }
   function onPointerMove(event: PointerEvent): void {
     const rect = root.getBoundingClientRect()
@@ -151,25 +197,74 @@ async function initScene(root: HTMLDivElement, canvas: HTMLCanvasElement): Promi
   }
   window.addEventListener('pointermove', onPointerMove, { passive: true })
 
-  // ── Render loop ──
+  const magnetRadius = 1.8
+  const magnetStrength = 0.14
+  const curlStrength = 0.022
+
   const clock = new THREE.Clock()
   let rafId = 0
   function tick(): void {
     rafId = requestAnimationFrame(tick)
     if (!inView || document.hidden) return
+
     mouse.x += (mouse.tx - mouse.x) * 0.06
     mouse.y += (mouse.ty - mouse.y) * 0.06
     const t = clock.getElapsedTime()
+
     uniforms.uTime.value = t
-    uniforms.uMouse.value.set(mouse.x, mouse.y)
-    mesh.rotation.y = t * 0.12 + mouse.x * 0.3
-    mesh.rotation.x = mouse.y * 0.25
+    innerUniforms.uTime.value = t
+    sharedMouse.set(mouse.x, mouse.y)
+
+    const outerRotY = t * 0.12 + mouse.x * 0.3
+    const outerRotX = mouse.y * 0.25
+    mesh.rotation.y = outerRotY
+    mesh.rotation.x = outerRotX
+    innerMesh.rotation.y = -outerRotY - 0.35
+    innerMesh.rotation.x = -outerRotX * 0.85
+
     particles.rotation.y = t * 0.02
+
+    const mouseWorldX = mouse.x * 2.8
+    const mouseWorldY = mouse.y * 2.2
+    for (let i = 0; i < particleCount; i++) {
+      const bi = i * 3
+      const bx = basePositions[bi] ?? 0
+      const by = basePositions[bi + 1] ?? 0
+      const bz = basePositions[bi + 2] ?? 0
+
+      const [cx, cy, cz] = curlNoise(bx * 0.35, by * 0.35, bz * 0.35, t * 0.18)
+      let px = bx + cx * curlStrength
+      let py = by + cy * curlStrength
+      let pz = bz + cz * curlStrength
+
+      if (!reduced) {
+        const dx = mouseWorldX - px
+        const dy = mouseWorldY - py
+        const dist = Math.hypot(dx, dy)
+        if (dist < magnetRadius && dist > 0.001) {
+          const pull = (1 - dist / magnetRadius) * magnetStrength
+          px += (dx / dist) * pull
+          py += (dy / dist) * pull
+        }
+      }
+
+      positions[bi] = px
+      positions[bi + 1] = py
+      positions[bi + 2] = pz
+    }
+    positionAttr.needsUpdate = true
+
     camera.position.x = mouse.x * 0.4
     camera.position.y = mouse.y * 0.3
     camera.lookAt(0, 0, 0)
-    if (composer) composer.render()
-    else renderer.render(scene, camera)
+
+    if (composer) {
+      postUniforms.uTime.value = t
+      postUniforms.uGrainStrength.value = reduced ? 0 : 0.035
+      composer.render()
+    } else {
+      renderer.render(scene, camera)
+    }
   }
 
   if (reduced) {
@@ -185,6 +280,8 @@ async function initScene(root: HTMLDivElement, canvas: HTMLCanvasElement): Promi
     visObs.disconnect()
     geometry.dispose()
     material.dispose()
+    innerGeometry.dispose()
+    innerMaterial.dispose()
     particleGeo.dispose()
     particleMat.dispose()
     if (composer) {
