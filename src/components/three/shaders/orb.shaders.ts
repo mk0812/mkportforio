@@ -1,5 +1,4 @@
-// Ashima simplex noise (3D) + FBM helpers — shared by hero shaders
-
+const noiseGlsl = /* glsl */ `
 vec4 permute(vec4 x) { return mod(((x * 34.0) + 1.0) * x, 289.0); }
 vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
 
@@ -61,14 +60,47 @@ float snoise(vec3 v) {
   m = m * m;
   return 42.0 * dot(m * m, vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3)));
 }
+`
 
-float fbm(vec3 p) {
-  float value = 0.0;
-  float amplitude = 0.5;
-  for (int i = 0; i < 4; i++) {
-    value += amplitude * snoise(p);
-    p *= 2.03;
-    amplitude *= 0.5;
-  }
-  return value;
+const vertexShader = /* glsl */ `
+uniform float uTime;
+uniform vec2 uMouse;
+
+varying vec3 vNormal;
+
+${noiseGlsl}
+
+void main() {
+  float t = uTime * 0.22;
+  vec3 pos = position;
+  float disp = snoise(pos * 1.25 + vec3(t, t * 0.7, uMouse.x * 0.3 + uMouse.y * 0.2)) * 0.18;
+  pos += normal * disp;
+  vNormal = normalMatrix * normal;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
 }
+`
+
+const fragmentShader = /* glsl */ `
+uniform vec3 uColorA;
+uniform vec3 uColorB;
+uniform vec3 uColorC;
+uniform float uTime;
+
+varying vec3 vNormal;
+
+void main() {
+  vec3 n = normalize(vNormal);
+  float tMix = n.y * 0.5 + 0.5 + sin(uTime * 0.35 + n.x * 2.0) * 0.08;
+
+  vec3 col = mix(uColorA, uColorB, smoothstep(0.0, 0.55, tMix));
+  col = mix(col, uColorC, smoothstep(0.45, 1.0, tMix));
+
+  col = min(col, vec3(0.55));
+  col = col / (1.0 + col);
+  col = min(col, vec3(0.55));
+
+  gl_FragColor = vec4(col, 1.0);
+}
+`
+
+export { vertexShader, fragmentShader }
