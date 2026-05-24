@@ -12,6 +12,13 @@ npm install
 npm run dev
 ```
 
+Lint（oxlint）:
+
+```bash
+npm run lint
+npm run lint:fix   # 自動修正
+```
+
 型チェック:
 
 ```bash
@@ -68,8 +75,11 @@ src/
 
 `master` / `main` への push と pull request で GitHub Actions が動きます。
 
+- `npm run lint` — oxlint（Vue / TypeScript 対応）
 - `npm run typecheck` — TypeScript / Vue の型チェック
 - `npm run build` — 本番ビルド（型チェック込み）
+
+CI は Node.js 24 で実行します。
 
 ## 技術スタック
 
