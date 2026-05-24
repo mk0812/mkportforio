@@ -54,7 +54,7 @@ function getTierConfig(tier: DeviceTierLevel): TierConfig {
         particleCount: 600,
         innerOrb: true,
         icosaDetail: 48,
-        postprocess: 'full',
+        postprocess: 'none',
         pixelRatioCap: 2,
         rafCapFps: null,
       }
@@ -63,7 +63,7 @@ function getTierConfig(tier: DeviceTierLevel): TierConfig {
         particleCount: 350,
         innerOrb: true,
         icosaDetail: 36,
-        postprocess: 'bloom-vignette',
+        postprocess: 'none',
         pixelRatioCap: 1.5,
         rafCapFps: null,
       }
