@@ -2,6 +2,8 @@
 node_modules
 dist
 dist-ssr
+*.tsbuildinfo
+node_modules/.tmp
 *.local
 
 .env
