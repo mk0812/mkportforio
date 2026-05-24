@@ -13,3 +13,12 @@ declare module '*.vue' {
   const component: DefineComponent<object, object, unknown>
   export default component
 }
+
+declare module '*.md' {
+  import type { DefineComponent } from 'vue'
+
+  export const frontmatter: Record<string, unknown>
+  export const excerpt: string | undefined
+  const component: DefineComponent<object, object, unknown>
+  export default component
+}
