@@ -10,6 +10,9 @@
     "correctness": "error"
   },
   "rules": {},
+  "options": {
+    "typeAware": true
+  },
   "env": {
     "builtin": true,
     "browser": true

@@ -12,12 +12,14 @@ npm install
 npm run dev
 ```
 
-Lint（oxlint）:
+Lint（oxlint、type-aware）:
 
 ```bash
 npm run lint
 npm run lint:fix   # 自動修正
 ```
+
+型情報を使うルールには `oxlint-tsgolint` を利用しています（`--type-aware`）。
 
 型チェック:
 
