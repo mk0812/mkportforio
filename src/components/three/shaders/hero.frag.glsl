@@ -34,7 +34,9 @@ void main() {
   col += caustic * darkMask * 0.06;
 
   float shimmer = 0.5 + 0.5 * sin(uTime * 0.5 + vPos.x * 1.5 + vPos.y * 2.0);
-  col += shimmer * 0.04;
+  col += shimmer * 0.025;
+
+  col = col / (1.0 + col * 0.6);
 
   gl_FragColor = vec4(col, uOpacity);
 }
