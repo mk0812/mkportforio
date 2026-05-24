@@ -219,7 +219,7 @@ async function initScene(root: HTMLDivElement, canvas: HTMLCanvasElement): Promi
       const bloomSize = new THREE.Vector2(1, 1)
       const c = new EffectComposer(renderer)
       c.addPass(new RenderPass(scene, camera))
-      c.addPass(new UnrealBloomPass(bloomSize, 0.55, 0.35, 0.45))
+      c.addPass(new UnrealBloomPass(bloomSize, 0.32, 0.4, 0.72))
       const postPass = new ShaderPass(localPostShader)
       postPass.renderToScreen = true
       c.addPass(postPass)
