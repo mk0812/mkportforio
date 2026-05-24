@@ -11,6 +11,9 @@
 <script setup lang="ts">
 import AppHeader from './AppHeader.vue'
 import AppFooter from './AppFooter.vue'
+import { useLenis } from '@/composables/useLenis'
+
+useLenis()
 </script>
 
 <style scoped>
@@ -25,6 +28,12 @@ import AppFooter from './AppFooter.vue'
   width: 100%;
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: var(--space-xl) var(--space-lg) var(--space-2xl);
+  padding: 0 var(--space-lg) var(--space-3xl);
+}
+
+@media (min-width: 960px) {
+  .app-shell__main {
+    padding-inline: var(--space-2xl);
+  }
 }
 </style>

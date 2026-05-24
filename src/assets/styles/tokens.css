@@ -1,0 +1,126 @@
+:root {
+  /* Surface scale — deeper, higher-contrast dark */
+  --color-bg: #07080d;
+  --color-bg-deep: #04050a;
+  --color-surface: #0e1018;
+  --color-surface-elevated: #161a26;
+  --color-surface-hi: #1e2336;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(255, 255, 255, 0.16);
+
+  /* Text */
+  --color-text: #f3f4f8;
+  --color-text-muted: #9aa3b5;
+  --color-text-dim: #5b6378;
+
+  /* Neon palette (gradient stops) */
+  --neon-cyan: #22d3ee;
+  --neon-blue: #4f7bff;
+  --neon-violet: #8b5cf6;
+  --neon-magenta: #ec4899;
+  --neon-pink: #ff5ea8;
+
+  /* Backwards-compatible accent aliases */
+  --color-accent: var(--neon-blue);
+  --color-accent-soft: rgba(79, 123, 255, 0.14);
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(
+    135deg,
+    var(--neon-cyan) 0%,
+    var(--neon-blue) 35%,
+    var(--neon-violet) 65%,
+    var(--neon-magenta) 100%
+  );
+  --gradient-text: linear-gradient(
+    120deg,
+    #ffffff 0%,
+    #d6e0ff 40%,
+    var(--neon-violet) 75%,
+    var(--neon-magenta) 100%
+  );
+  --gradient-glow:
+    radial-gradient(circle at 18% 12%, rgba(79, 123, 255, 0.28), transparent 55%),
+    radial-gradient(circle at 82% 78%, rgba(236, 72, 153, 0.22), transparent 55%);
+  --gradient-border: conic-gradient(
+    from var(--angle, 0deg) at 50% 50%,
+    var(--neon-cyan),
+    var(--neon-violet),
+    var(--neon-magenta),
+    var(--neon-cyan)
+  );
+
+  /* Glass */
+  --glass-bg: rgba(14, 16, 24, 0.55);
+  --glass-bg-strong: rgba(7, 8, 13, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-blur: blur(14px) saturate(140%);
+
+  /* Shadows & glows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 28px 60px rgba(0, 0, 0, 0.55);
+  --shadow-glow:
+    0 0 32px rgba(139, 92, 246, 0.35),
+    0 0 64px rgba(79, 123, 255, 0.18);
+  --shadow-glow-pink: 0 0 28px rgba(236, 72, 153, 0.45);
+
+  /* Typography */
+  --font-display: 'Fraunces', 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  --font-sans: 'Inter', 'Hiragino Sans', 'Noto Sans JP', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
+
+  /* Modular type scale (1.250 minor third) */
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.875rem;
+  --fs-base: 1rem;
+  --fs-md: 1.125rem;
+  --fs-lg: 1.375rem;
+  --fs-xl: 1.75rem;
+  --fs-2xl: 2.25rem;
+  --fs-3xl: 3rem;
+  --fs-4xl: clamp(2.75rem, 7vw, 5rem);
+  --fs-display: clamp(3.25rem, 11vw, 8rem);
+
+  /* Spacing (4px base) */
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6rem;
+  --space-4xl: 9rem;
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-xl: 32px;
+  --radius-full: 9999px;
+
+  /* Motion */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+  --dur-fast: 180ms;
+  --dur-base: 280ms;
+  --dur-slow: 520ms;
+
+  /* Layout */
+  --max-width: 1240px;
+  --max-width-readable: 720px;
+  --header-height: 72px;
+
+  /* Z-layers */
+  --z-canvas: 0;
+  --z-content: 10;
+  --z-header: 100;
+  --z-cursor: 9999;
+}
+
+@property --angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
