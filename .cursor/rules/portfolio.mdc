@@ -1,0 +1,125 @@
+---
+description: mkportforio (Vue 3 + Three.js + GSAP) のコーディング規約・コンポーネント分割・パフォーマンスルール
+globs: ["src/**/*.{ts,vue,glsl}"]
+alwaysApply: true
+---
+
+# mkportforio conventions
+
+個人ポートフォリオサイト。Vue 3 (Composition API) + TypeScript + Vite + vue-router、
+GSAP + Lenis でスクロール演出、Three.js + GLSL で 3D 表現。oxlint (type-aware) で品質管理。
+
+## Stack
+
+- Vue 3.5 + `<script setup lang="ts">` のみ（Options API 禁止）
+- vue-router 4 (`@/router/index.ts`)
+- Three.js は **動的 import** (`await import('three')`) — Home `/` のみで読まれるよう lazy 化
+- GSAP / Lenis は composable 経由でラップ（`useLenis` / `useMagnetic` / `useScrollReveal` / `useTextReveal` / `useTilt`）
+- CSS: tokens.css / base.css / animations.css / main.css の 4 層、`var(--...)` で参照
+- フォント: Inter / Fraunces / JetBrains Mono / Noto Sans JP
+
+## ディレクトリ構造
+
+```
+src/
+├── App.vue, main.ts
+├── router/index.ts
+├── views/                      # ルートに対応するページ (HomeView / ProjectsView / AboutView)
+├── components/
+│   ├── layout/                 # AppHeader / AppFooter / AppShell / SectionBlock
+│   ├── portfolio/              # HeroSection / ProjectGrid / ProjectCard / SkillsSection ...
+│   ├── three/                  # HeroCanvas.vue + shaders/*.{glsl,ts}
+│   └── ui/                     # BaseButton / GradientText / TagList / icons/*
+├── composables/                # 再利用フック
+├── content/                    # データ層 (profile / projects / experience) - TS 定数
+├── config/site.ts              # サイト設定
+├── types/                      # SiteConfig / Project / Experience 等
+├── utils/                      # 純粋関数 (skillLevel 等)
+└── assets/styles/              # tokens / base / animations / main
+```
+
+## TypeScript
+
+- `any` 禁止。型不明なら `unknown` + type guard
+- Props は `defineProps<{...}>()` の型引数で宣言（runtime declaration 禁止）
+- 公開 API のシグネチャは `src/types/portfolio.ts` 等に集約
+- `oxlint` は type-aware なので、未使用 import / 未使用 var / 厳格 boolean / no-explicit-any 等は CI で落ちる
+
+## Vue コンポーネント規約
+
+- **`<script setup lang="ts">` のみ**
+- emits は `defineEmits<{ (e: 'foo', value: T): void }>()`
+- `defineExpose` は基本使わない（必要なら composable 経由）
+- `<style scoped>` を使い、グローバル CSS は `assets/styles/` で完結
+- 子コンポーネントへの DOM ref 公開は `ref()` + template ref で受ける（`shallowRef` を内部状態に活用）
+- props デフォルト値は `withDefaults()`
+
+## Composables
+
+- 命名: `use{Noun}` / `use{Verb}{Noun}`
+- 副作用は `onMounted` / `onBeforeUnmount` で常にペアにする（dispose リーク防止）
+- `prefers-reduced-motion` を必ず尊重 (`usePrefersReducedMotion`)
+- IntersectionObserver / ResizeObserver / mediaQuery は disconnect する
+- 戻り値は ref / 関数のオブジェクト：`{ progress, start, stop }`
+
+## Three.js / GLSL
+
+- **重要**: WebGL リソース (geometry / material / texture / renderer / composer.passes) は `onBeforeUnmount` で必ず `.dispose()`
+- pixelRatio は `Math.min(window.devicePixelRatio, 2)` で頭打ち
+- `prefers-reduced-motion` 時は `tick()` を回さず単発レンダーで止める
+- `IntersectionObserver` で offscreen 時は `requestAnimationFrame` の中で early return
+- `document.hidden` も尊重
+- shader は `*.vert.glsl` / `*.frag.glsl` をファイル化し、`?raw` または専用 `.ts` でバンドル
+- 巨大 viewport では postprocess を bypass する判定を入れる（既存 `HeroCanvas.vue` 参照）
+- 既存の `EffectComposer` / `RenderPass` / `UnrealBloomPass` は `three/examples/jsm/postprocessing/*` から動的 import
+
+## GSAP / Lenis
+
+- GSAP は ScrollTrigger と組み合わせ、`gsap.context()` でクリーンアップを束ねる
+- Lenis はデスクトップのみ（タッチデバイスはネイティブスクロール）
+- マウス磁性は `useMagnetic` を使う
+- char-stagger は `useTextReveal` を使う
+
+## Accessibility / Performance
+
+- Hero canvas は `aria-hidden="true"`（装飾扱い）
+- `prefers-reduced-motion: reduce` を尊重し、アニメーションを単発描画 or 完全停止
+- 重い計算は viewport 面積で分岐（既存 `isLargeViewport` 判定 参照）
+- visibilitychange / IntersectionObserver で offscreen 時の RAF を止める
+- 画像は `loading="lazy"` をデフォルトに、Hero 等 above-the-fold は eager
+
+## Content-driven
+
+- `src/content/{profile,projects,experience}.ts` がデータの単一ソース
+- 新しい作品 / 経歴 / スキル追加は基本ここを更新するだけで反映される
+- 型は `src/types/portfolio.ts` を参照、`satisfies` で型チェック
+
+## ルーティング
+
+- 各 view は `meta.title` を持ち、`router.afterEach` で `document.title` を書き換える
+- 動的ルート（例: `/projects/:id`）は遅延 import 必須
+- `scrollBehavior` は top に戻す
+
+## CSS Tokens
+
+- 色・spacing・shadow・radius・transition はすべて CSS variables 経由
+- `src/assets/styles/tokens.css` を直編集して新トークン追加
+- pixel ハードコード禁止、`var(--space-4)` 等を使う
+- ダーク前提だが、token を介しているのでテーマ追加が容易になる前提を保つ
+
+## ビルド・チェック
+
+- `npm run typecheck` (vue-tsc)
+- `npm run lint` (oxlint --type-aware)
+- `npm run build` (vue-tsc -b && vite build)
+- 本番デプロイは GitHub Pages（`.github/workflows/deploy.yml`）
+
+## 禁止・避ける
+
+- Options API
+- `any`
+- 生の DOM 操作（`document.querySelector` 等）。template ref / composable 経由
+- グローバル GSAP / Lenis インスタンスの暴露
+- `useEffect`-like な深い prop drilling（Provide/Inject や composable で）
+- Three.js / GSAP の dispose 漏れ
+- 大きな依存追加（lygia 等はやむを得ない場合のみ、PR 本文で必要性を説明）
