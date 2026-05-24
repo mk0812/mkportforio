@@ -22,6 +22,18 @@ const router = createRouter({
       component: () => import('@/views/AboutView.vue'),
       meta: { title: 'プロフィール' },
     },
+    {
+      path: '/blog',
+      name: 'blog',
+      component: () => import('@/views/BlogIndexView.vue'),
+      meta: { title: 'Blog' },
+    },
+    {
+      path: '/blog/:slug',
+      name: 'blog-post',
+      component: () => import('@/views/BlogPostView.vue'),
+      meta: { title: 'Blog' },
+    },
   ],
   scrollBehavior() {
     return { top: 0 }

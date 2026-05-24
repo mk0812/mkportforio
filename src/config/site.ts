@@ -16,6 +16,7 @@ export const siteConfig = {
   nav: [
     { label: 'ホーム', to: '/' },
     { label: '作品', to: '/projects' },
+    { label: 'Blog', to: '/blog' },
     { label: 'プロフィール', to: '/about' },
   ],
 } satisfies SiteConfig
