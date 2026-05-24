@@ -56,13 +56,18 @@ const year = new Date().getFullYear()
   content: '';
   position: absolute;
   top: 0;
-  left: 10%;
-  right: 10%;
+  left: 0;
+  right: 0;
   height: 1px;
-  background: var(--gradient-primary);
-  opacity: 0.55;
-  mask: linear-gradient(90deg, transparent, #000 30%, #000 70%, transparent);
-  -webkit-mask: linear-gradient(90deg, transparent, #000 30%, #000 70%, transparent);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--neon-cyan) 20%,
+    var(--neon-violet) 50%,
+    var(--neon-magenta) 80%,
+    transparent 100%
+  );
+  opacity: 0.85;
 }
 
 .footer__inner {
@@ -119,13 +124,34 @@ const year = new Date().getFullYear()
 }
 
 .footer__link {
+  position: relative;
   color: var(--color-text-muted);
   font-size: var(--fs-sm);
+  text-decoration: none;
+}
+
+.footer__link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 1px;
+  background: var(--neon-cyan);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--dur-base) var(--ease-out-expo);
 }
 
 .footer__link:hover,
 .footer__link.router-link-active {
   color: var(--color-text);
+  text-decoration: none;
+}
+
+.footer__link:hover::after,
+.footer__link.router-link-active::after {
+  transform: scaleX(1);
 }
 
 .footer__social {

@@ -9,8 +9,11 @@
         loading="lazy"
       />
       <div v-else class="project-card__placeholder" aria-hidden="true">
+        <span class="project-card__placeholder-ring" />
         <span class="project-card__placeholder-tag">{{ project.tags[0] ?? project.title.charAt(0) }}</span>
       </div>
+      <div class="project-card__duotone" aria-hidden="true" />
+      <div class="project-card__spotlight" aria-hidden="true" />
       <div class="project-card__overlay" aria-hidden="true">
         <span class="project-card__cta">
           View case
@@ -25,7 +28,7 @@
       </div>
       <h3 class="project-card__title">{{ project.title }}</h3>
       <p class="project-card__description">{{ project.description }}</p>
-      <TagList :tags="project.tags" />
+      <TagList :tags="project.tags" interactive />
       <div class="project-card__links" @click.stop>
         <a
           v-if="project.href"
@@ -56,6 +59,7 @@ import type { Project } from '@/types'
 import TagList from '@/components/ui/TagList.vue'
 import IconArrowRight from '@/components/ui/icons/IconArrowRight.vue'
 import { useTilt } from '@/composables/useTilt'
+import { useSpotlight } from '@/composables/useSpotlight'
 
 defineProps<{
   project: Project
@@ -63,6 +67,7 @@ defineProps<{
 
 const cardEl = ref<HTMLElement | null>(null)
 useTilt(cardEl, { max: 6 })
+useSpotlight(cardEl)
 </script>
 
 <style scoped>
@@ -150,26 +155,35 @@ useTilt(cardEl, { max: 6 })
   height: 100%;
   object-fit: cover;
   transform: scale(1);
-  transition: transform 600ms var(--ease-out-expo);
+  transition: transform var(--dur-base) var(--ease-out-expo);
 }
 
 .project-card:hover .project-card__media img {
-  transform: scale(1.06);
+  transform: scale(1.04);
 }
 
 .project-card__placeholder {
+  position: relative;
   width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background:
-    radial-gradient(circle at 30% 30%, rgba(79, 123, 255, 0.4), transparent 60%),
-    radial-gradient(circle at 75% 70%, rgba(236, 72, 153, 0.35), transparent 60%),
-    var(--color-surface-hi);
+  background: var(--color-surface-hi);
+  overflow: hidden;
+}
+
+.project-card__placeholder-ring {
+  position: absolute;
+  inset: -40%;
+  background: var(--gradient-border);
+  opacity: 0.45;
+  animation: rotate-conic 8s linear infinite;
 }
 
 .project-card__placeholder-tag {
+  position: relative;
+  z-index: 1;
   font-family: var(--font-mono);
   font-size: var(--fs-md);
   color: rgba(255, 255, 255, 0.7);
@@ -178,6 +192,40 @@ useTilt(cardEl, { max: 6 })
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-full);
   backdrop-filter: blur(6px);
+  background: rgba(7, 8, 13, 0.55);
+}
+
+.project-card__duotone {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(34, 211, 238, 0.22) 0%,
+    rgba(236, 72, 153, 0.22) 100%
+  );
+  opacity: 0;
+  transition: opacity var(--dur-base) var(--ease-out-expo);
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: overlay;
+}
+
+.project-card:hover .project-card__duotone {
+  opacity: 1;
+}
+
+.project-card__spotlight {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%),
+    rgba(255, 255, 255, 0.2),
+    transparent 55%
+  );
+  opacity: var(--spotlight-opacity, 0);
+  transition: opacity var(--dur-base) var(--ease-out-expo);
+  pointer-events: none;
+  z-index: 2;
 }
 
 .project-card__overlay {
@@ -190,6 +238,7 @@ useTilt(cardEl, { max: 6 })
   background: linear-gradient(180deg, transparent 40%, rgba(7, 8, 13, 0.85));
   opacity: 0;
   transition: opacity var(--dur-base) var(--ease-out-expo);
+  z-index: 3;
 }
 
 .project-card:hover .project-card__overlay {
@@ -204,7 +253,6 @@ useTilt(cardEl, { max: 6 })
   font-size: var(--fs-xs);
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--color-text);
   padding: 0.5rem 0.9rem;
   border-radius: var(--radius-full);
   background: var(--gradient-primary);

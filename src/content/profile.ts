@@ -9,10 +9,10 @@ export const profile = {
   location: 'Tokyo, Japan',
   roles: ['Developer', 'Designer'],
   skills: [
-    { name: 'JavaScript / TypeScript', level: 'advanced' },
-    { name: 'Vue / React', level: 'advanced' },
-    { name: 'Creative Coding (p5.js, Canvas)', level: 'intermediate' },
-    { name: 'UI Design', level: 'intermediate' },
+    { name: 'JavaScript / TypeScript', level: 'advanced', category: 'Development' },
+    { name: 'Vue / React', level: 'advanced', category: 'Development' },
+    { name: 'Creative Coding (p5.js, Canvas)', level: 'intermediate', category: 'Creative' },
+    { name: 'UI Design', level: 'intermediate', category: 'Design' },
   ],
   interests: ['インタラクティブ表現', 'OSS', '技術記事'],
 } satisfies Profile

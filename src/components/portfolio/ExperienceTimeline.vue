@@ -4,7 +4,13 @@
       <div class="timeline__line-fill" />
     </div>
     <ol class="timeline">
-      <li v-for="item in items" :key="item.id" class="timeline__item">
+      <li
+        v-for="(item, index) in items"
+        :key="item.id"
+        :ref="(el) => setItemRef(el, index)"
+        class="timeline__item"
+        :class="{ 'is-active': activeIndex === index }"
+      >
         <div class="timeline__marker" aria-hidden="true">
           <span class="timeline__marker-dot" />
         </div>
@@ -23,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref, type ComponentPublicInstance } from 'vue'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import type { Experience } from '@/types'
@@ -34,12 +40,65 @@ defineProps<{
 }>()
 
 const rootEl = ref<HTMLElement | null>(null)
+const activeIndex = ref(0)
+const itemEls = ref<(HTMLElement | null)[]>([])
 const triggers: ScrollTrigger[] = []
+let activeObserver: IntersectionObserver | null = null
+const visibleRatios = new Map<number, number>()
+
+function setItemRef(
+  el: Element | ComponentPublicInstance | null,
+  index: number,
+): void {
+  if (el instanceof HTMLElement) {
+    itemEls.value[index] = el
+    return
+  }
+  itemEls.value[index] = null
+}
+
+function setupActiveObserver(): void {
+  const reduced = prefersReducedMotion()
+  activeObserver = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        const index = itemEls.value.findIndex((item) => item === entry.target)
+        if (index === -1) continue
+        visibleRatios.set(index, entry.intersectionRatio)
+      }
+
+      let bestIndex = activeIndex.value
+      let bestRatio = 0
+      for (const [index, ratio] of visibleRatios) {
+        if (ratio > bestRatio) {
+          bestRatio = ratio
+          bestIndex = index
+        }
+      }
+
+      if (bestRatio > 0) {
+        activeIndex.value = bestIndex
+      }
+    },
+    {
+      root: null,
+      threshold: reduced ? [0, 0.5, 1] : [0, 0.25, 0.5, 0.75, 1],
+      rootMargin: '-20% 0px -35% 0px',
+    },
+  )
+
+  for (const item of itemEls.value) {
+    if (item) activeObserver.observe(item)
+  }
+}
 
 onMounted(() => {
-  if (prefersReducedMotion()) return
   const root = rootEl.value
   if (!root) return
+
+  setupActiveObserver()
+
+  if (prefersReducedMotion()) return
   gsap.registerPlugin(ScrollTrigger)
 
   const fill = root.querySelector<HTMLElement>('.timeline__line-fill')
@@ -75,6 +134,9 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  activeObserver?.disconnect()
+  activeObserver = null
+  visibleRatios.clear()
   for (const t of triggers) t.kill()
   triggers.length = 0
 })
@@ -92,18 +154,29 @@ onBeforeUnmount(() => {
   top: 0.5rem;
   bottom: 0.5rem;
   width: 2px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 2px;
+  background: linear-gradient(
+    to bottom,
+    var(--neon-cyan) 0%,
+    var(--neon-violet) 50%,
+    var(--neon-magenta) 100%
+  );
+  border-radius: var(--radius-sm);
+  opacity: 0.35;
 }
 
 .timeline__line-fill {
   position: absolute;
   inset: 0;
-  background: var(--gradient-primary);
+  background: linear-gradient(
+    to bottom,
+    var(--neon-cyan) 0%,
+    var(--neon-violet) 50%,
+    var(--neon-magenta) 100%
+  );
   transform-origin: top;
   transform: scaleY(0);
   border-radius: inherit;
-  box-shadow: 0 0 12px rgba(139, 92, 246, 0.45);
+  box-shadow: 0 0 12px var(--neon-glow);
 }
 
 .timeline {
@@ -116,6 +189,12 @@ onBeforeUnmount(() => {
 .timeline__item {
   position: relative;
   padding-bottom: var(--space-2xl);
+  filter: saturate(0.6);
+  transition: filter var(--dur-base) var(--ease-out-expo);
+}
+
+.timeline__item.is-active {
+  filter: saturate(1);
 }
 
 .timeline__item:last-child {
@@ -141,7 +220,35 @@ onBeforeUnmount(() => {
   border: 2px solid var(--neon-violet);
   box-shadow:
     0 0 0 4px rgba(139, 92, 246, 0.15),
-    0 0 12px rgba(139, 92, 246, 0.45);
+    0 0 16px var(--neon-glow);
+  transition:
+    width var(--dur-base) var(--ease-out-expo),
+    height var(--dur-base) var(--ease-out-expo),
+    box-shadow var(--dur-base) var(--ease-out-expo);
+}
+
+.timeline__item.is-active .timeline__marker-dot {
+  width: 14px;
+  height: 14px;
+  box-shadow:
+    0 0 0 4px rgba(139, 92, 246, 0.25),
+    0 0 24px var(--neon-glow),
+    0 0 40px rgba(236, 72, 153, 0.35);
+}
+
+.timeline__content {
+  padding: var(--space-lg);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-elevated);
+  transition:
+    transform var(--dur-base) var(--ease-out-expo),
+    box-shadow var(--dur-base) var(--ease-out-expo);
+}
+
+.timeline__content:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .timeline__period {
@@ -195,5 +302,13 @@ onBeforeUnmount(() => {
   width: 6px;
   height: 1px;
   background: var(--neon-violet);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .timeline__item,
+  .timeline__marker-dot,
+  .timeline__content {
+    transition: none;
+  }
 }
 </style>
