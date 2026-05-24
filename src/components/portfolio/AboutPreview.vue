@@ -13,9 +13,9 @@
   </SectionBlock>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
-import { profile } from '@/content/profile.js'
+import { profile } from '@/content/profile'
 import SectionBlock from '@/components/layout/SectionBlock.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 

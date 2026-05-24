@@ -26,7 +26,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { profile, experience } from '@/content'
 import SectionBlock from '@/components/layout/SectionBlock.vue'
 import SkillsSection from '@/components/portfolio/SkillsSection.vue'

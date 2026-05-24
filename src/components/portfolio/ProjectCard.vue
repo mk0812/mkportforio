@@ -44,12 +44,13 @@
   </article>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import type { Project } from '@/types'
 import TagList from '@/components/ui/TagList.vue'
 
-defineProps({
-  project: { type: Object, required: true },
-})
+defineProps<{
+  project: Project
+}>()
 </script>
 
 <style scoped>

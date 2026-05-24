@@ -3,7 +3,9 @@
     <ul class="skills">
       <li v-for="skill in profile.skills" :key="skill.name" class="skills__item">
         <span class="skills__name">{{ skill.name }}</span>
-        <span class="skills__level" :data-level="skill.level">{{ levelLabel(skill.level) }}</span>
+        <span class="skills__level" :data-level="skill.level">
+          {{ skillLevelLabel(skill.level) }}
+        </span>
       </li>
     </ul>
     <p v-if="profile.interests.length" class="skills__interests">
@@ -13,18 +15,10 @@
   </SectionBlock>
 </template>
 
-<script setup>
-import { profile } from '@/content/profile.js'
+<script setup lang="ts">
+import { profile } from '@/content/profile'
 import SectionBlock from '@/components/layout/SectionBlock.vue'
-
-function levelLabel(level) {
-  const map = {
-    beginner: '入門',
-    intermediate: '中級',
-    advanced: '上級',
-  }
-  return map[level] ?? level
-}
+import { skillLevelLabel } from '@/utils/skillLevel'
 </script>
 
 <style scoped>

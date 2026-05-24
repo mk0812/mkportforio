@@ -29,8 +29,9 @@ const router = createRouter({
 })
 
 router.afterEach((to) => {
-  const base = import.meta.env.VITE_SITE_TITLE || 'Portfolio'
-  document.title = to.meta.title ? `${to.meta.title} | ${base}` : base
+  const base = import.meta.env.VITE_SITE_TITLE ?? 'Portfolio'
+  const title = to.meta.title
+  document.title = title ? `${title} | ${base}` : base
 })
 
 export default router

@@ -17,9 +17,9 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
-import { projects } from '@/content/projects.js'
+import { projects } from '@/content/projects'
 import HeroSection from '@/components/portfolio/HeroSection.vue'
 import AboutPreview from '@/components/portfolio/AboutPreview.vue'
 import SkillsSection from '@/components/portfolio/SkillsSection.vue'

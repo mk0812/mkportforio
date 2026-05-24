@@ -15,8 +15,8 @@
   </footer>
 </template>
 
-<script setup>
-import { useSiteConfig } from '@/composables/useSiteConfig.js'
+<script setup lang="ts">
+import { useSiteConfig } from '@/composables/useSiteConfig'
 
 const { site } = useSiteConfig()
 const year = new Date().getFullYear()

@@ -38,9 +38,9 @@
   </header>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
-import { useSiteConfig } from '@/composables/useSiteConfig.js'
+import { useSiteConfig } from '@/composables/useSiteConfig'
 
 const { site } = useSiteConfig()
 const menuOpen = ref(false)

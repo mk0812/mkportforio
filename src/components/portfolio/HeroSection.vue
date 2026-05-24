@@ -13,9 +13,9 @@
   </section>
 </template>
 
-<script setup>
-import { useSiteConfig } from '@/composables/useSiteConfig.js'
-import { profile } from '@/content/profile.js'
+<script setup lang="ts">
+import { useSiteConfig } from '@/composables/useSiteConfig'
+import { profile } from '@/content/profile'
 import BaseButton from '@/components/ui/BaseButton.vue'
 
 const { site } = useSiteConfig()

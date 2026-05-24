@@ -1,7 +1,5 @@
-/**
- * 経歴・活動履歴（タイムライン用）。
- * 後から職務経歴や学歴を追記しやすい形式です。
- */
+import type { Experience } from '@/types'
+
 export const experience = [
   {
     id: 'exp-1',
@@ -23,4 +21,4 @@ export const experience = [
     description: 'クリエイティブコーディングや OSS 活動など、副次的な経歴の例です。',
     highlights: ['p5.js によるビジュアル表現', 'ポートフォリオサイトの構築'],
   },
-]
+] satisfies Experience[]

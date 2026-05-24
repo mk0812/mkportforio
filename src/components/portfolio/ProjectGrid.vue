@@ -6,12 +6,13 @@
   </ul>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import type { Project } from '@/types'
 import ProjectCard from './ProjectCard.vue'
 
-defineProps({
-  items: { type: Array, default: () => [] },
-})
+defineProps<{
+  items: Project[]
+}>()
 </script>
 
 <style scoped>

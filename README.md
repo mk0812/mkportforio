@@ -1,6 +1,6 @@
 # mkportforio
 
-個人ポートフォリオサイト用の Vue 3 + Vite テンプレートです。  
+個人ポートフォリオサイト用の **Vue 3 + TypeScript + Vite** テンプレートです。  
 作品・スキル・経歴をデータファイルで管理し、コンポーネントを組み合わせてページを構成します。
 
 ## セットアップ
@@ -10,7 +10,13 @@ npm install
 npm run dev
 ```
 
-本番ビルド:
+型チェック:
+
+```bash
+npm run typecheck
+```
+
+本番ビルド（型チェック込み）:
 
 ```bash
 npm run build
@@ -21,11 +27,12 @@ npm run preview
 
 ```
 src/
-├── config/site.js          # サイト名・ナビ・SNS など
+├── types/                  # SiteConfig, Project, Experience などの型定義
+├── config/site.ts          # サイト名・ナビ・SNS など
 ├── content/
-│   ├── profile.js          # 自己紹介・スキル
-│   ├── projects.js         # 作品一覧
-│   └── experience.js       # 経歴タイムライン
+│   ├── profile.ts          # 自己紹介・スキル
+│   ├── projects.ts         # 作品一覧
+│   └── experience.ts       # 経歴タイムライン
 ├── components/
 │   ├── layout/             # ヘッダー・フッター・セクション
 │   ├── portfolio/          # ヒーロー・作品カード・タイムライン等
@@ -34,14 +41,18 @@ src/
 └── composables/
 ```
 
+コンテンツファイルは `satisfies` で型安全に定義しています。エディタの補完・型エラーが効きます。
+
 ## カスタマイズの手順
 
-1. **`src/config/site.js`** — 名前・タグライン・メール・SNS・ナビを更新
-2. **`src/content/profile.js`** — 自己紹介文・スキル・興味
-3. **`src/content/projects.js`** — 作品データ（`image` に `/projects/xxx.png` など）
-4. **`src/content/experience.js`** — 経歴・活動履歴（後から職務経歴を追記しやすい形式）
+1. **`src/config/site.ts`** — 名前・タグライン・メール・SNS・ナビを更新
+2. **`src/content/profile.ts`** — 自己紹介文・スキル・興味
+3. **`src/content/projects.ts`** — 作品データ（`image` に `/projects/xxx.png` など）
+4. **`src/content/experience.ts`** — 経歴・活動履歴
 
-作品画像は `public/projects/` に置き、`projects.js` の `image` フィールドで参照してください。
+作品画像は `public/projects/` に置き、`projects.ts` の `image` フィールドで参照してください。
+
+新しいフィールドを追加する場合は、先に `src/types/portfolio.ts` の型を更新してください。
 
 ## ページ
 
@@ -53,8 +64,10 @@ src/
 
 ## 技術スタック
 
-- Vue 3 (Composition API)
+- Vue 3 (Composition API, `<script setup lang="ts">`)
+- TypeScript 5
 - Vue Router 4
 - Vite 6
+- vue-tsc（ビルド前の型チェック）
 
 旧版（Vue 2 + p5.js の背景アニメーション）は撤去済みです。クリエイティブコーディング作品は `projects` に載せてリンクする想定です。

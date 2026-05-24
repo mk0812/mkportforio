@@ -7,7 +7,7 @@
         <h3 class="timeline__title">{{ item.title }}</h3>
         <p class="timeline__org">{{ item.organization }}</p>
         <p class="timeline__description">{{ item.description }}</p>
-        <ul v-if="item.highlights?.length" class="timeline__highlights">
+        <ul v-if="item.highlights.length" class="timeline__highlights">
           <li v-for="(point, i) in item.highlights" :key="i">{{ point }}</li>
         </ul>
       </div>
@@ -15,10 +15,12 @@
   </ol>
 </template>
 
-<script setup>
-defineProps({
-  items: { type: Array, default: () => [] },
-})
+<script setup lang="ts">
+import type { Experience } from '@/types'
+
+defineProps<{
+  items: Experience[]
+}>()
 </script>
 
 <style scoped>

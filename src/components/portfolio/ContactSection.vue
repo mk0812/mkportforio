@@ -20,8 +20,8 @@
   </SectionBlock>
 </template>
 
-<script setup>
-import { useSiteConfig } from '@/composables/useSiteConfig.js'
+<script setup lang="ts">
+import { useSiteConfig } from '@/composables/useSiteConfig'
 import SectionBlock from '@/components/layout/SectionBlock.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 

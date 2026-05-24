@@ -1,6 +1,5 @@
-/**
- * 作品一覧。画像は public/projects/ に置く想定です。
- */
+import type { Project } from '@/types'
+
 export const projects = [
   {
     id: 'sample-interactive',
@@ -19,7 +18,7 @@ export const projects = [
     title: 'Web アプリ（サンプル）',
     description:
       '業務・個人開発の代表案件を1件載せる想定のカードです。課題・役割・成果を2〜3文で書くと効果的です。',
-    tags: ['Vue', 'Vite'],
+    tags: ['Vue', 'Vite', 'TypeScript'],
     year: 2025,
     href: '#',
     repo: null,
@@ -37,4 +36,4 @@ export const projects = [
     image: null,
     featured: false,
   },
-]
+] satisfies Project[]

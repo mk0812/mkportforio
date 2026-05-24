@@ -1,7 +1,5 @@
-/**
- * サイト全体の設定。
- * 名前・リンク・ナビなどはここを編集するだけで反映されます。
- */
+import type { SiteConfig } from '@/types'
+
 export const siteConfig = {
   name: 'Your Name',
   title: 'Portfolio',
@@ -20,4 +18,4 @@ export const siteConfig = {
     { label: '作品', to: '/projects' },
     { label: 'プロフィール', to: '/about' },
   ],
-}
+} satisfies SiteConfig

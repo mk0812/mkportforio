@@ -2,14 +2,14 @@
   <div class="projects-view">
     <header class="page-header">
       <h1>作品</h1>
-      <p>制作物・実験・OSS など。`src/content/projects.js` で管理します。</p>
+      <p>制作物・実験・OSS など。`src/content/projects.ts` で管理します。</p>
     </header>
     <ProjectGrid :items="projects" />
   </div>
 </template>
 
-<script setup>
-import { projects } from '@/content/projects.js'
+<script setup lang="ts">
+import { projects } from '@/content/projects'
 import ProjectGrid from '@/components/portfolio/ProjectGrid.vue'
 </script>
 

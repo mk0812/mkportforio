@@ -1,6 +1,7 @@
 <template>
   <component
     :is="tag"
+    :to="to"
     :href="href"
     :type="tag === 'button' ? type : undefined"
     class="btn"
@@ -12,23 +13,30 @@
   </component>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, type RouteLocationRaw } from 'vue-router'
+import type { ButtonVariant } from '@/types'
 
-const props = defineProps({
-  to: { type: [String, Object], default: null },
-  href: { type: String, default: null },
-  variant: {
-    type: String,
-    default: 'primary',
-    validator: (v) => ['primary', 'ghost', 'outline'].includes(v),
+const props = withDefaults(
+  defineProps<{
+    to?: RouteLocationRaw | null
+    href?: string | null
+    variant?: ButtonVariant
+    type?: 'button' | 'submit' | 'reset'
+    block?: boolean
+  }>(),
+  {
+    to: null,
+    href: null,
+    variant: 'primary',
+    type: 'button',
+    block: false,
   },
-  type: { type: String, default: 'button' },
-  block: { type: Boolean, default: false },
-})
+)
 
 const external = computed(() => Boolean(props.href))
+
 const tag = computed(() => {
   if (props.to) return RouterLink
   if (props.href) return 'a'

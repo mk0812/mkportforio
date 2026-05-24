@@ -1,7 +1,5 @@
-/**
- * プロフィール・スキル・自己紹介文。
- * 経歴ページの元データとしても使えます。
- */
+import type { Profile } from '@/types'
+
 export const profile = {
   headline: 'はじめまして',
   summary: [
@@ -17,4 +15,4 @@ export const profile = {
     { name: 'UI Design', level: 'intermediate' },
   ],
   interests: ['インタラクティブ表現', 'OSS', '技術記事'],
-}
+} satisfies Profile

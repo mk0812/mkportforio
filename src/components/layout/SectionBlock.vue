@@ -12,14 +12,21 @@
   </section>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
 
-const props = defineProps({
-  id: { type: String, default: undefined },
-  title: { type: String, default: '' },
-  subtitle: { type: String, default: '' },
-})
+const props = withDefaults(
+  defineProps<{
+    id?: string
+    title?: string
+    subtitle?: string
+  }>(),
+  {
+    id: undefined,
+    title: '',
+    subtitle: '',
+  },
+)
 
 const titleId = computed(() =>
   props.id ? `${props.id}-heading` : undefined,
