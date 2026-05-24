@@ -1,5 +1,7 @@
 # mkportforio
 
+[![CI](https://github.com/mk0812/mkportforio/actions/workflows/ci.yml/badge.svg)](https://github.com/mk0812/mkportforio/actions/workflows/ci.yml)
+
 個人ポートフォリオサイト用の **Vue 3 + TypeScript + Vite** テンプレートです。  
 作品・スキル・経歴をデータファイルで管理し、コンポーネントを組み合わせてページを構成します。
 
@@ -9,6 +11,15 @@
 npm install
 npm run dev
 ```
+
+Lint（oxlint、type-aware）:
+
+```bash
+npm run lint
+npm run lint:fix   # 自動修正
+```
+
+型情報を使うルールには `oxlint-tsgolint` を利用しています（`--type-aware`）。
 
 型チェック:
 
@@ -61,6 +72,16 @@ src/
 | `/` | ヒーロー・注目作品・スキル概要・連絡先 |
 | `/projects` | 作品一覧 |
 | `/about` | プロフィール・スキル詳細・経歴タイムライン |
+
+## CI
+
+`master` / `main` への push と pull request で GitHub Actions が動きます。
+
+- `npm run lint` — oxlint（Vue / TypeScript 対応）
+- `npm run typecheck` — TypeScript / Vue の型チェック
+- `npm run build` — 本番ビルド（型チェック込み）
+
+CI は Node.js 24 で実行します。
 
 ## 技術スタック
 
