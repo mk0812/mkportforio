@@ -1,5 +1,7 @@
 # mkportforio
 
+[![CI](https://github.com/mk0812/mkportforio/actions/workflows/ci.yml/badge.svg)](https://github.com/mk0812/mkportforio/actions/workflows/ci.yml)
+
 個人ポートフォリオサイト用の **Vue 3 + TypeScript + Vite** テンプレートです。  
 作品・スキル・経歴をデータファイルで管理し、コンポーネントを組み合わせてページを構成します。
 
@@ -61,6 +63,13 @@ src/
 | `/` | ヒーロー・注目作品・スキル概要・連絡先 |
 | `/projects` | 作品一覧 |
 | `/about` | プロフィール・スキル詳細・経歴タイムライン |
+
+## CI
+
+`master` / `main` への push と pull request で GitHub Actions が動きます。
+
+- `npm run typecheck` — TypeScript / Vue の型チェック
+- `npm run build` — 本番ビルド（型チェック込み）
 
 ## 技術スタック
 
