@@ -1,4 +1,5 @@
 import type { Profile } from '@/types'
+import { allSkills } from './skills'
 
 export const profile = {
   headline: 'はじめまして',
@@ -8,11 +9,6 @@ export const profile = {
   ],
   location: 'Tokyo, Japan',
   roles: ['Developer', 'Designer'],
-  skills: [
-    { name: 'JavaScript / TypeScript', level: 'advanced', category: 'Development' },
-    { name: 'Vue / React', level: 'advanced', category: 'Development' },
-    { name: 'Creative Coding (p5.js, Canvas)', level: 'intermediate', category: 'Creative' },
-    { name: 'UI Design', level: 'intermediate', category: 'Design' },
-  ],
+  skills: allSkills,
   interests: ['インタラクティブ表現', 'OSS', '技術記事'],
 } satisfies Profile
